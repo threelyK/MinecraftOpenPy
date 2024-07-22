@@ -19,6 +19,8 @@ class Scommands(commands.Cog):
         await ctx.respond("Test success! 💪")
 
 
+    # Only after completing the server start procedure should we send
+    # a followup response saying: "Server is up!"
     @discord.slash_command(
         name="server_start",
         description="Start up the server"
@@ -54,13 +56,15 @@ class Scommands(commands.Cog):
         if OPSYSTEM == "posix":
             if get_server_state() == 1:
                 run_script(SERVER_STOP_SCRIPT)
-                await ctx.send_followup("Beginning 10 Min countdown\nWILL abort if player joins during countdown!")
+                await ctx.send_followup("Starting 10 Min countdown\nWILL abort if player joins during countdown!")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
 
+    # If u use the BOOT COMMAND + LIST COMMAND
+    # within a short period of each other, the bot will CRASH!
     @discord.slash_command(
         name="server_list",
         description="Lists all players currently on the server"
