@@ -17,14 +17,6 @@ def get_server_state() -> int:
         return int(serverStateFile.read())
 
 
-def change_server_state(state: int) -> None:
-    if get_server_state() == state:
-        print("-- Server state unchanged --")
-    else:
-        with open("./SERVER_STATE", "w") as serverStateFile:
-            serverStateFile.write(state)
-
-
 def get_player_count() -> int:
     with open("./PLAYER_COUNT", "r") as plrCountFile:
         return int(plrCountFile.read())

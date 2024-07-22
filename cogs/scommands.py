@@ -1,7 +1,7 @@
 
 import discord
 from discord.ext import commands
-from utils import OPSYSTEM, SERVER_START_SCRIPT, SERVER_STOP_SCRIPT, AUTHORISED_SERVER_IDS, get_server_state, change_server_state, get_player_count, run_script
+from utils import OPSYSTEM, SERVER_START_SCRIPT, SERVER_STOP_SCRIPT, AUTHORISED_SERVER_IDS, get_server_state, get_player_count, run_script
 
 class Scommands(commands.Cog):
 
@@ -21,7 +21,7 @@ class Scommands(commands.Cog):
     )
     async def server_start(self, ctx: discord.ApplicationContext):
         # THIS defer method SAVED my life
-        # For a app cmd it must return a response within 3 seconds of it being executed
+        # For an app cmd it must return a response within 3 seconds of it being executed
         # If not, discord will say "unknown integration". Which is why we use defer to tell discord to wait
         await ctx.defer()
         if OPSYSTEM == "posix":
@@ -30,8 +30,9 @@ class Scommands(commands.Cog):
                 await ctx.send_followup(f"{ctx.author.mention} Server is already ONLINE")
             else:
                 run_script(SERVER_START_SCRIPT)
-                change_server_state(1)
-                await ctx.send_followup("Booting up the server [WIP]")
+                # Bash scripts are handling server state changes when related scripts are run
+                # echo 1 > SERVER_STATE
+                await ctx.send_followup("Booting up the server")
         else:
             await ctx.send_followup(":poop: **ERROR:** MinecraftOpen is running on the wrong OS")
 
@@ -42,14 +43,14 @@ class Scommands(commands.Cog):
     )
     async def server_stop(self, ctx: discord.ApplicationContext):
         await ctx.defer()
+        run_script("~/scripts/who-online.sh")
         if get_player_count() > 0:
             await ctx.send_followup("**ERROR:** Player ONLINE")
             return 0
         if OPSYSTEM == "posix":
             if get_server_state() == 1:
                 run_script(SERVER_STOP_SCRIPT)
-                change_server_state(0)
-                await ctx.send_followup("Stopping the server [WIP]")
+                await ctx.send_followup("Stopping the server")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
         else:
