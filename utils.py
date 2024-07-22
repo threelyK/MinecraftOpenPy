@@ -7,8 +7,6 @@ load_dotenv("./.env")
 BOT_TOKEN= os.getenv("BOT_TOKEN")
 AUTHORISED_SERVER_IDS=os.getenv("AUTHORISED_SERVER_IDS")
 OPSYSTEM=os.name
-SERVER_START_SCRIPT="~/scripts/start-server.sh"
-SERVER_STOP_SCRIPT="~/scripts/stop-server.sh"
 
 # Server state tracker function
 # 0 = Off, 1 = On

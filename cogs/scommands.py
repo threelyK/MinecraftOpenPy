@@ -1,7 +1,11 @@
 
 import discord
 from discord.ext import commands
-from utils import OPSYSTEM, SERVER_START_SCRIPT, SERVER_STOP_SCRIPT, AUTHORISED_SERVER_IDS, get_server_state, get_player_count, run_script
+from utils import OPSYSTEM, AUTHORISED_SERVER_IDS, get_server_state, get_player_count, run_script
+SERVER_START_SCRIPT="~/scripts/start-server.sh"
+SERVER_STOP_SCRIPT="~/scripts/log-check.sh"
+SERVER_PLAYER_COUNT_SCRIPT="~/scripts/who-online.sh"
+
 
 class Scommands(commands.Cog):
 
@@ -11,8 +15,8 @@ class Scommands(commands.Cog):
 
 
     @discord.slash_command()
-    async def hello(self, ctx: discord.ApplicationContext):
-        await ctx.respond("Hey!")
+    async def test(self, ctx: discord.ApplicationContext):
+        await ctx.respond("Test success! 💪")
 
 
     @discord.slash_command(
@@ -34,7 +38,7 @@ class Scommands(commands.Cog):
                 # echo 1 > SERVER_STATE
                 await ctx.send_followup("Booting up the server")
         else:
-            await ctx.send_followup(":poop: **ERROR:** MinecraftOpen is running on the wrong OS")
+            await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
 
     @discord.slash_command(
@@ -43,25 +47,29 @@ class Scommands(commands.Cog):
     )
     async def server_stop(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        run_script("~/scripts/who-online.sh")
+        run_script(SERVER_PLAYER_COUNT_SCRIPT)
         if get_player_count() > 0:
-            await ctx.send_followup("**ERROR:** Player ONLINE")
+            await ctx.send_followup(f"⚠ **ERROR:** Player ONLINE {ctx.author.mention}")
             return 0
         if OPSYSTEM == "posix":
             if get_server_state() == 1:
                 run_script(SERVER_STOP_SCRIPT)
-                await ctx.send_followup("Stopping the server")
+                await ctx.send_followup("Beginning 10 Min countdown\nWILL abort if player joins during countdown!")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
         else:
-            await ctx.send_followup(":poop: **ERROR:** MinecraftOpen is running on the wrong OS")
+            await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
+
 
     @discord.slash_command(
         name="server_list",
         description="Lists all players currently on the server"
     )
     async def server_list(self, ctx: discord.ApplicationContext):
-        await ctx.respond(f"Current players: [WIP]")
+        await ctx.defer()
+        run_script(SERVER_PLAYER_COUNT_SCRIPT)
+        numberOnline = get_player_count()
+        await ctx.send_followup(f"Current players online: {numberOnline}")
 
 
 
