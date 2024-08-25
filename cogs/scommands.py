@@ -14,16 +14,29 @@ class Scommands(commands.Cog):
 
 
 
-    @discord.slash_command()
+    @discord.slash_command(
+            name="test",
+            description="Used for testing! 👽",
+            guild_ids=AUTHORISED_SERVER_IDS
+    )
+    @commands.cooldown(rate=1, per=5*60) # WIP
     async def test(self, ctx: discord.ApplicationContext):
         await ctx.respond("Test success! 💪")
+
+    @test.error
+    async def test_error(ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send("Command is on cooldown! 💂‍♂️")
+        else:
+            raise error
 
 
     # Only after completing the server start procedure should we send
     # a followup response saying: "Server is up!"
     @discord.slash_command(
         name="server_start",
-        description="Start up the server"
+        description="Start up the server",
+        guild_ids=AUTHORISED_SERVER_IDS
     )
     async def server_start(self, ctx: discord.ApplicationContext):
         # THIS defer method SAVED my life
@@ -45,7 +58,8 @@ class Scommands(commands.Cog):
 
     @discord.slash_command(
         name="server_stop",
-        description="Begins 10 minute countdown to stop the server. ALL players must be OFFLINE"
+        description="Begins 10 minute countdown to stop the server. ALL players must be OFFLINE",
+        guild_ids=AUTHORISED_SERVER_IDS
     )
     async def server_stop(self, ctx: discord.ApplicationContext):
         await ctx.defer()
@@ -66,10 +80,11 @@ class Scommands(commands.Cog):
     # If u use the BOOT COMMAND + LIST COMMAND
     # within a short period of each other, the bot will CRASH!
     @discord.slash_command(
-        name="server_list",
-        description="Lists all players currently on the server"
+        name="server_list_number",
+        description="Lists number of players currently on the server",
+        guild_ids=AUTHORISED_SERVER_IDS
     )
-    async def server_list(self, ctx: discord.ApplicationContext):
+    async def server_list_number(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         run_script(SERVER_PLAYER_COUNT_SCRIPT)
         numberOnline = get_player_count()

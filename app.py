@@ -17,14 +17,10 @@ logger.addHandler(handler)
 
 bot = discord.Bot()
 bot.load_extension('cogs.scommands')
+# Bot app commands are in the above cogs class
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} is operational!")
-
-
-# ------ COMMANDS ------
-
-
 
 bot.run(BOT_TOKEN)
