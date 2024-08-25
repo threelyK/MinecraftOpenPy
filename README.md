@@ -22,8 +22,8 @@ This Discord bot allows users to launch a Minecraft server using bash scripts ex
 
 1. **Clone the repository:**
     ```bash
-    git clone REPO-URL-GOES-HERE
-    cd discord-minecraft-server-bot
+    git clone https://github.com/threelyK/MinecraftOpenPy.git
+    cd MinecraftOpenPy
     ```
 
 2. **Set up a virtual environment and activate it:**
