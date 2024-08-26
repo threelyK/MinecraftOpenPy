@@ -1,11 +1,23 @@
 
 import discord, time
 from discord.ext import commands
-from infoManager import get_server_info
+from infoManager import update_server_info
 from utils import OPSYSTEM, ALLOWED_SERVER_IDS, get_server_state, get_player_count, run_script
 SERVER_START_SCRIPT="~/scripts/start-server.sh"
 SERVER_STOP_SCRIPT="~/scripts/log-check.sh"
+BACKUP_SCRIPT="~/scripts/backup.sh"
 SERVER_PLAYER_COUNT_SCRIPT="~/scripts/who-online.sh"
+
+# Any serverInfo variables should be changed within commands when possible.
+# Avoid changing those variables outside of python files if able.
+
+
+def isRunningLinux() -> bool:
+    # posix = Linux
+    if OPSYSTEM == "posix":
+        return True
+    else:
+        return False
 
 
 class Scommands(commands.Cog):
@@ -37,17 +49,16 @@ class Scommands(commands.Cog):
         # For an app cmd it must return a response within 3 seconds of it being executed
         # If not, discord will say "unknown integration". Which is why we use defer to tell discord to wait
         await ctx.defer()
-        if OPSYSTEM == "posix":
+        if isRunningLinux():
             if get_server_state() == 1:
                 # Whenever a defer is called, it must be followed up with a send_followup method
                 await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} Server is already ONLINE!")
             else:
                 run_script(SERVER_START_SCRIPT)
                 await ctx.send_followup("Booting up the server!")
-                # Bash scripts are handling server state changes when related scripts are run
-                # echo 1 > SERVER_STATE
                 time.sleep(5*60)
                 await ctx.delete()
+                update_server_info("server_state/1")
                 await ctx.send_response(f"{ctx.author.mention} Server is now Online! 🔛")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS!")
@@ -65,7 +76,7 @@ class Scommands(commands.Cog):
 
     @discord.slash_command(
         name="server_stop",
-        description="Begins 10 minute countdown to stop the server. ALL players must be OFFLINE",
+        description="Stops the server only if ALL players are OFFLINE",
         guild_ids=ALLOWED_SERVER_IDS
     )
     @commands.cooldown(rate=1, per=10*60)
@@ -77,10 +88,11 @@ class Scommands(commands.Cog):
             await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} There is a player online, unable to shutdown.")
             discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
             return 0
-        if OPSYSTEM == "posix":
+        if isRunningLinux():
             if get_server_state() == 1:
                 run_script(SERVER_STOP_SCRIPT)
-                await ctx.send_followup("Starting 10 Min countdown\nWILL abort if player joins during countdown!")
+                update_server_info("server_state/0")
+                await ctx.send_followup("Starting shutdown! 💤")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
                 discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
@@ -106,7 +118,7 @@ class Scommands(commands.Cog):
     @commands.cooldown(rate=1, per=10)
     async def server_list_number(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        await ctx.send_followup(f"Current players online: {get_server_info("player_count")}")
+        await ctx.send_followup(f"Current players online: {get_player_count()}")
 
     @server_list_number.error
     async def server_list_number_error(self, ctx, error):
@@ -125,14 +137,17 @@ class Scommands(commands.Cog):
     @commands.max_concurrency(number=1, per=commands.BucketType.guild)
     async def server_backup(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        if get_server_state() == 1:
-            await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
+        if isRunningLinux():
+            if get_server_state() == 1:
+                await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
+            else:
+                ctx.send_followup(f"Creating backup...")
+                run_script(BACKUP_SCRIPT)
+                time.sleep(5*60)
+                ctx.delete()
+                ctx.send_response(f"Backup save created!")
         else:
-            ctx.send_followup(f"Creating backup...")
-            #Backup world file
-            time.sleep(5*60)
-            ctx.delete()
-            ctx.send_response(f"Backup save created!")
+            await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
     @server_backup.error
     async def server_backup_error(self, ctx, error):
@@ -146,17 +161,23 @@ class Scommands(commands.Cog):
 
     @discord.slash_command(
         name="force_server_backup",
-        description="👷‍♂️ Authorised Personnel Only. Forces a world backup if the Server is OFF",
+        description="🦺 Authorised Personnel Only. Forces a world backup if the Server is OFF",
         guild_ids=ALLOWED_SERVER_IDS
     )
+    @commands.check_any(commands.is_owner())
     async def force_server_backup(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        if get_server_state() == 1:
-            await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
+        if isRunningLinux():
+            if get_server_state() == 1:
+                await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
+            else:
+                ctx.send_followup(f"Creating backup...")
+                run_script(BACKUP_SCRIPT)
+                time.sleep(5*60)
+                ctx.delete()
+                ctx.send_response(f"Backup save created!")
         else:
-            #Backup world file
-            # Send msg before backup is finished "Creating backup save!"
-            ctx.send_followup(f"WIP does nothing")
+            await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
 
 def setup(bot): # this is called by Pycord to setup the cog

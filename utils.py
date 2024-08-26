@@ -1,6 +1,7 @@
 
 import os
 from dotenv import load_dotenv
+from infoManager import get_server_info
 
 
 load_dotenv("./.env")
@@ -13,13 +14,12 @@ ALLOWED_SERVER_IDS = list(map(int, AUTHORISED_SERVER_IDS))
 # Server state tracker function
 # 0 = Off, 1 = On
 def get_server_state() -> int:
-    with open("./SERVER_STATE", "r") as serverStateFile:
-        return int(serverStateFile.read())
+    return get_server_info("server_state")
 
-
+# Player count getter
 def get_player_count() -> int:
-    with open("./PLAYER_COUNT", "r") as plrCountFile:
-        return int(plrCountFile.read())
+    return get_server_info("player_count")
+    
 
 
 def run_script(fileDirectory: str):

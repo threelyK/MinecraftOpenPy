@@ -54,9 +54,10 @@ def save_server_info():
     SERVER_INFO_PATH.write_text(writeInfo)
 
 
-if __name__ == "__main__":
-    serverInfo = load_server_info() #preloads server info
+serverInfo = load_server_info() #preloads server info
 
+if __name__ == "__main__":
+    
     parser = argparse.ArgumentParser(description="Server info manager")
 
     parser.add_argument("--reset", action="store_true", help="Resets the serverInfo dictionary and saves it to the json.")
