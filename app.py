@@ -22,5 +22,6 @@ bot.load_extension('cogs.scommands')
 @bot.event
 async def on_ready():
     print(f"{bot.user} is operational!")
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Digging a hole! ⛏"))
 
 bot.run(BOT_TOKEN)
