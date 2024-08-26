@@ -1,6 +1,5 @@
 
 import os
-import pathlib
 from dotenv import load_dotenv
 
 
@@ -25,14 +24,3 @@ def get_player_count() -> int:
 
 def run_script(fileDirectory: str):
     os.system(fileDirectory)
-
-
-# Server related variables
-
-SERVER_INFO_PATH = pathlib.Path("server_info.json")
-
-serverInfo = {
-    "current_player_count": 0,
-    "server_state": 0
-}
-

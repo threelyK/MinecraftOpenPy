@@ -1,6 +1,7 @@
 
-import discord
+import discord, time
 from discord.ext import commands
+from infoManager import get_server_info
 from utils import OPSYSTEM, ALLOWED_SERVER_IDS, get_server_state, get_player_count, run_script
 SERVER_START_SCRIPT="~/scripts/start-server.sh"
 SERVER_STOP_SCRIPT="~/scripts/log-check.sh"
@@ -13,13 +14,11 @@ class Scommands(commands.Cog):
         self.bot = bot
 
 
-
     @discord.slash_command(
             name="test",
             description="Used for testing! 👽",
-            guild_ids=ALLOWED_SERVER_IDS
+            guild_ids=ALLOWED_SERVER_IDS,
     )
-    # @commands.cooldown(rate=1, per=5*60)
     async def test(self, ctx: discord.ApplicationContext):
         await ctx.respond("Test success! 💪")
 
@@ -29,7 +28,7 @@ class Scommands(commands.Cog):
     @discord.slash_command(
         name="server_start",
         description="Start up the server",
-        guild_ids=ALLOWED_SERVER_IDS
+        guild_ids=ALLOWED_SERVER_IDS,
     )
     @commands.cooldown(rate=1, per=5*60)
     @commands.max_concurrency(number=1, per=commands.BucketType.guild) # Limits usage to one at a time
@@ -44,11 +43,15 @@ class Scommands(commands.Cog):
                 await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} Server is already ONLINE!")
             else:
                 run_script(SERVER_START_SCRIPT)
+                await ctx.send_followup("Booting up the server!")
                 # Bash scripts are handling server state changes when related scripts are run
                 # echo 1 > SERVER_STATE
-                await ctx.send_followup("Booting up the server!")
+                time.sleep(5*60)
+                await ctx.delete()
+                await ctx.send_response(f"{ctx.author.mention} Server is now Online! 🔛")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS!")
+            discord.ApplicationCommand.reset_cooldown(self.server_start, ctx)
 
     @server_start.error
     async def server_start_error(self, ctx, error):
@@ -65,11 +68,14 @@ class Scommands(commands.Cog):
         description="Begins 10 minute countdown to stop the server. ALL players must be OFFLINE",
         guild_ids=ALLOWED_SERVER_IDS
     )
+    @commands.cooldown(rate=1, per=10*60)
+    @commands.max_concurrency(number=1, per=commands.BucketType.guild)
     async def server_stop(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         run_script(SERVER_PLAYER_COUNT_SCRIPT)
         if get_player_count() > 0:
             await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} There is a player online, unable to shutdown.")
+            discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
             return 0
         if OPSYSTEM == "posix":
             if get_server_state() == 1:
@@ -77,23 +83,37 @@ class Scommands(commands.Cog):
                 await ctx.send_followup("Starting 10 Min countdown\nWILL abort if player joins during countdown!")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
+                discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
+            discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
+
+    @server_stop.error
+    async def server_stop_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.respond(f"🛑 **ERROR:** {ctx.author.mention} Command is on cooldown! Try again in {round(error.retry_after)} seconds. 💂‍♂️")
+        elif isinstance(error, commands.MaxConcurrencyReached):
+            await ctx.respond(f"🛑 **ERROR:** {ctx.author.mention} Command has already been called by another! Please wait for that to complete. 📵")
+        else:
+            raise error
 
 
-    # If u use the BOOT COMMAND + LIST COMMAND
-    # within a short period of each other, the bot will CRASH!
     @discord.slash_command(
         name="server_list_number",
-        description="Lists number of players currently on the server",
+        description="Lists the number of players currently on the server",
         guild_ids=ALLOWED_SERVER_IDS
     )
     @commands.cooldown(rate=1, per=10)
     async def server_list_number(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        run_script(SERVER_PLAYER_COUNT_SCRIPT)
-        numberOnline = get_player_count()
-        await ctx.send_followup(f"Current players online: {numberOnline}")
+        await ctx.send_followup(f"Current players online: {get_server_info("player_count")}")
+
+    @server_list_number.error
+    async def server_list_number_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.respond(f"🛑 **ERROR:** {ctx.author.mention} Command is on cooldown! Try again in {round(error.retry_after)} seconds. 💂‍♂️")
+        else:
+            raise error
 
 
     @discord.slash_command(
@@ -102,14 +122,26 @@ class Scommands(commands.Cog):
         guild_ids=ALLOWED_SERVER_IDS
     )
     @commands.cooldown(rate=1, per=30*60)
+    @commands.max_concurrency(number=1, per=commands.BucketType.guild)
     async def server_backup(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         if get_server_state() == 1:
             await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
         else:
+            ctx.send_followup(f"Creating backup...")
             #Backup world file
-            # Send msg before backup is finished "Creating backup save!"
-            ctx.send_followup(f"WIP does nothing")
+            time.sleep(5*60)
+            ctx.delete()
+            ctx.send_response(f"Backup save created!")
+
+    @server_backup.error
+    async def server_backup_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.respond(f"🛑 **ERROR:** {ctx.author.mention} Command is on cooldown! Try again in {round(error.retry_after)} seconds. 💂‍♂️")
+        elif isinstance(error, commands.MaxConcurrencyReached):
+            await ctx.respond(f"🛑 **ERROR:** {ctx.author.mention} Command has already been called by another! Please wait for that to complete. 📵")
+        else:
+            raise error
 
 
     @discord.slash_command(
