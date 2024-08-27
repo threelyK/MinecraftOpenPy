@@ -59,7 +59,7 @@ class Scommands(commands.Cog):
                 time.sleep(5*60)
                 await ctx.delete()
                 update_server_info("server_state/1")
-                await ctx.send_response(f"{ctx.author.mention} Server is now Online! 🔛")
+                await ctx.send_followup(f"{ctx.author.mention} Server is now Online! 🔛")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS!")
             discord.ApplicationCommand.reset_cooldown(self.server_start, ctx)
