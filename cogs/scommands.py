@@ -143,9 +143,9 @@ class Scommands(commands.Cog):
             else:
                 await ctx.send_followup(f"Creating backup...")
                 run_script(BACKUP_SCRIPT)
-                time.sleep(5*60)
+                time.sleep(2*60)
                 await ctx.delete()
-                await ctx.send_response(f"Backup save created!")
+                await ctx.send_followup(f"Backup save created!")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
@@ -173,9 +173,9 @@ class Scommands(commands.Cog):
             else:
                 await ctx.send_followup(f"Creating backup...")
                 run_script(BACKUP_SCRIPT)
-                time.sleep(5*60)
+                time.sleep(2*60)
                 await ctx.delete()
-                await ctx.send_response(f"Backup save created!")
+                await ctx.send_followup(f"Backup save created!")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
