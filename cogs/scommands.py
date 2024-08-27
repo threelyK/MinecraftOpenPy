@@ -141,11 +141,11 @@ class Scommands(commands.Cog):
             if get_server_state() == 1:
                 await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
             else:
-                ctx.send_followup(f"Creating backup...")
+                await ctx.send_followup(f"Creating backup...")
                 run_script(BACKUP_SCRIPT)
                 time.sleep(5*60)
-                ctx.delete()
-                ctx.send_response(f"Backup save created!")
+                await ctx.delete()
+                await ctx.send_response(f"Backup save created!")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
@@ -171,11 +171,11 @@ class Scommands(commands.Cog):
             if get_server_state() == 1:
                 await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
             else:
-                ctx.send_followup(f"Creating backup...")
+                await ctx.send_followup(f"Creating backup...")
                 run_script(BACKUP_SCRIPT)
                 time.sleep(5*60)
-                ctx.delete()
-                ctx.send_response(f"Backup save created!")
+                await ctx.delete()
+                await ctx.send_response(f"Backup save created!")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS")
 
