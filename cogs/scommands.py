@@ -6,7 +6,7 @@ from utils import OPSYSTEM, ALLOWED_SERVER_IDS, get_server_state, get_player_cou
 SERVER_START_SCRIPT="~/scripts/start-server.sh"
 SERVER_STOP_SCRIPT="~/scripts/log-check.sh"
 BACKUP_SCRIPT="~/scripts/backup.sh"
-SERVER_PLAYER_COUNT_SCRIPT="~/scripts/who-online.sh"
+SERVER_PLAYER_COUNT_SCRIPT="~/scripts/playerCount.sh"
 
 # Any serverInfo variables should be changed within commands when possible.
 # Avoid changing those variables outside of python files if able.
