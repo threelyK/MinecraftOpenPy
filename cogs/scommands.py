@@ -4,7 +4,7 @@ from discord.ext import commands
 from infoManager import update_server_info, load_server_info
 from utils import OPSYSTEM, ALLOWED_SERVER_IDS, run_script
 SERVER_START_SCRIPT="~/scripts/start-server.sh"
-SERVER_STOP_SCRIPT="~/scripts/log-check.sh"
+SERVER_STOP_SCRIPT="~/scripts/stop-server.sh"
 BACKUP_SCRIPT="~/scripts/backup.sh"
 SERVER_PLAYER_COUNT_SCRIPT="~/scripts/playerCount.sh"
 
