@@ -1,7 +1,7 @@
 
 import discord, time
 from discord.ext import commands
-from infoManager import update_server_info, load_server_info, get_server_info
+from infoManager import update_server_info, load_server_info
 from utils import OPSYSTEM, ALLOWED_SERVER_IDS, run_script
 SERVER_START_SCRIPT="~/scripts/start-server.sh"
 SERVER_STOP_SCRIPT="~/scripts/log-check.sh"
@@ -50,7 +50,8 @@ class Scommands(commands.Cog):
         # If not, discord will say "unknown integration". Which is why we use defer to tell discord to wait
         await ctx.defer()
         if isRunningLinux():
-            if get_server_info("server_state") == 1:
+            serverInfo = load_server_info()
+            if serverInfo.get('server_state') == 1:
                 # Whenever a defer is called, it must be followed up with a send_followup method
                 await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} Server is already ONLINE!")
             else:
@@ -84,12 +85,13 @@ class Scommands(commands.Cog):
     async def server_stop(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         run_script(SERVER_PLAYER_COUNT_SCRIPT)
-        if get_server_info("player_count") > 0:
+        serverInfo = load_server_info()
+        if serverInfo.get('player_count') > 0:
             await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} There is a player online, unable to shutdown.")
             discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
             return 0
         if isRunningLinux():
-            if get_server_info("server_state") == 1:
+            if serverInfo.get('server_state') == 1:
                 run_script(SERVER_STOP_SCRIPT)
                 update_server_info("server_state/0")
                 await ctx.send_followup("Starting shutdown! 💤")
@@ -118,7 +120,8 @@ class Scommands(commands.Cog):
     @commands.cooldown(rate=1, per=10)
     async def server_list_number(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        await ctx.send_followup(f"Current players online: {get_server_info("player_count")}")
+        serverInfo = load_server_info()
+        await ctx.send_followup(f"Current players online: {serverInfo.get('player_count')}")
 
     @server_list_number.error
     async def server_list_number_error(self, ctx, error):
@@ -138,7 +141,8 @@ class Scommands(commands.Cog):
     async def server_backup(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         if isRunningLinux():
-            if get_server_info("server_state") == 1:
+            serverInfo = load_server_info()
+            if serverInfo.get('server_state') == 1:
                 await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
             else:
                 await ctx.send_followup(f"Creating backup...")
@@ -168,7 +172,8 @@ class Scommands(commands.Cog):
     async def force_server_backup(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         if isRunningLinux():
-            if get_server_info("server_state") == 1:
+            serverInfo = load_server_info()
+            if serverInfo.get("server_state") == 1:
                 await ctx.send_followup(f"🛑 **ERROR:** Unable to produce backup, server is running! {ctx.author.mention}")
             else:
                 await ctx.send_followup(f"Creating backup...")
