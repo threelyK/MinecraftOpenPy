@@ -1,5 +1,6 @@
 
 import os
+# Look into using "subprocess" module instead of os
 from dotenv import load_dotenv
 
 
@@ -12,3 +13,7 @@ ALLOWED_SERVER_IDS = list(map(int, AUTHORISED_SERVER_IDS))
 
 def run_script(fileDirectory: str):
     os.system(fileDirectory)
+
+
+def update_info(infoVar, state):
+    os.system(f"python3 infoManager.py --update {infoVar+"/"+state}")

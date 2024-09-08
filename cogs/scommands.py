@@ -1,8 +1,8 @@
 
 import discord, time
 from discord.ext import commands
-from infoManager import update_server_info, load_server_info, save_server_info
-from utils import OPSYSTEM, ALLOWED_SERVER_IDS, run_script
+from infoManager import load_server_info
+from utils import OPSYSTEM, ALLOWED_SERVER_IDS, run_script, update_info
 SERVER_START_SCRIPT="~/scripts/start-server.sh"
 SERVER_STOP_SCRIPT="~/scripts/stop-server.sh"
 BACKUP_SCRIPT="~/scripts/backup.sh"
@@ -57,10 +57,9 @@ class Scommands(commands.Cog):
             else:
                 run_script(SERVER_START_SCRIPT)
                 await ctx.send_followup("Booting up the server!")
+                update_info("server_state", 1)
                 time.sleep(5*60)
                 await ctx.delete()
-                update_server_info("server_state/1")
-                save_server_info(serverInfo)
                 await ctx.send_followup(f"{ctx.author.mention} Server is now Online! 🔛")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS!")
@@ -94,8 +93,7 @@ class Scommands(commands.Cog):
         if isRunningLinux():
             if serverInfo.get('server_state') == 1:
                 run_script(SERVER_STOP_SCRIPT)
-                update_server_info("server_state/0")
-                save_server_info(serverInfo)
+                update_info("server_state", 0)
                 await ctx.send_followup("Starting shutdown! 💤")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
