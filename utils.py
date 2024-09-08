@@ -1,5 +1,5 @@
 
-import os
+import os, subprocess
 # Look into using "subprocess" module instead of os
 from dotenv import load_dotenv
 
@@ -15,6 +15,6 @@ def run_script(fileDirectory: str):
     os.system(fileDirectory)
 
 
-def update_info(infoVar, state):
+def update_info(infoVar: str, state: int):
     parameter = infoVar+"/"+state
-    os.system(f"python3 infoManager.py --update {parameter}")
+    subprocess.run(["python3", "infoManager.py", "--update "+ parameter])
