@@ -16,4 +16,5 @@ def run_script(fileDirectory: str):
 
 
 def update_info(infoVar, state):
-    os.system(f"python3 infoManager.py --update {infoVar+"/"+state}")
+    parameter = infoVar+"/"+state
+    os.system(f"python3 infoManager.py --update {parameter}")
