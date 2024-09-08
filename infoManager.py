@@ -9,7 +9,7 @@ def load_server_info():
 
 
 def get_server_info(variableName):
-    global serverInfo
+    serverInfo
     try:
         data = serverInfo.get(variableName)
         print(data)
@@ -19,7 +19,7 @@ def get_server_info(variableName):
 
 
 def update_server_info(variableNameAndValue):
-    global serverInfo
+    serverInfo
     inputs = variableNameAndValue.split("/")
     if len(inputs) == 2:
         varName = inputs[0]
