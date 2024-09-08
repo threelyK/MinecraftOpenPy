@@ -49,8 +49,8 @@ def reset_server_info():
     print("Reset success")
 
 
-def save_server_info():
-    writeInfo = json.dumps(serverInfo, indent=2)
+def save_server_info(info):
+    writeInfo = json.dumps(info, indent=2)
     SERVER_INFO_PATH.write_text(writeInfo)
 
 
@@ -68,11 +68,11 @@ if __name__ == "__main__":
 
     if args.reset:
         reset_server_info()
-        save_server_info()
+        save_server_info(serverInfo)
 
     if args.update:
         update_server_info(args.update)
-        save_server_info()
+        save_server_info(serverInfo)
 
     if args.get:
         get_server_info(args.get)
