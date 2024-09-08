@@ -16,5 +16,5 @@ def run_script(fileDirectory: str):
 
 
 def update_info(infoVar: str, state: int):
-    parameter = infoVar+"/"+state
+    parameter = infoVar+"/"+str(state)
     subprocess.run(["python3", "infoManager.py", "--update "+ parameter])
