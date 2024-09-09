@@ -1,6 +1,5 @@
 
 import os, subprocess
-# Look into using "subprocess" module instead of os
 from dotenv import load_dotenv
 
 
@@ -12,7 +11,8 @@ OPSYSTEM=os.name
 ALLOWED_SERVER_IDS = list(map(int, AUTHORISED_SERVER_IDS))
 
 def run_script(fileDirectory: str):
-    os.system(fileDirectory)
+    command = "sh " + fileDirectory
+    subprocess.run(command, shell=True)
 
 
 def update_info(infoVar: str, state: int):

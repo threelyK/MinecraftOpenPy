@@ -28,7 +28,7 @@ class Scommands(commands.Cog):
 
     @discord.slash_command(
             name="test",
-            description="Used for testing! 👽",
+            description="Used for testing!",
             guild_ids=ALLOWED_SERVER_IDS,
     )
     async def test(self, ctx: discord.ApplicationContext):
@@ -39,7 +39,7 @@ class Scommands(commands.Cog):
     # a followup response saying: "Server is up!"
     @discord.slash_command(
         name="server_start",
-        description="Start up the server",
+        description="Boots up the server",
         guild_ids=ALLOWED_SERVER_IDS,
     )
     @commands.cooldown(rate=1, per=5*60)
@@ -53,14 +53,14 @@ class Scommands(commands.Cog):
             serverInfo = load_server_info()
             if serverInfo.get('server_state') == 1:
                 # Whenever a defer is called, it must be followed up with a send_followup method
-                await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} Server is already ONLINE!")
+                await ctx.send_followup(f"🛑 **ERROR:** {ctx.author.mention} Server is already LIVE!")
             else:
                 run_script(SERVER_START_SCRIPT)
                 await ctx.send_followup("Booting up the server!")
                 update_info("server_state", 1)
                 time.sleep(5*60)
                 await ctx.delete()
-                await ctx.send_followup(f"{ctx.author.mention} Server is now Online! 🔛")
+                await ctx.send_followup(f"{ctx.author.mention} Server is now LIVE! 🟢")
         else:
             await ctx.send_followup("💩 **ERROR:** MinecraftOpen is running on the wrong OS!")
             discord.ApplicationCommand.reset_cooldown(self.server_start, ctx)
@@ -94,7 +94,7 @@ class Scommands(commands.Cog):
             if serverInfo.get('server_state') == 1:
                 run_script(SERVER_STOP_SCRIPT)
                 update_info("server_state", 0)
-                await ctx.send_followup("Starting shutdown! 💤")
+                await ctx.send_followup("Shutting down! 😴")
             else:
                 await ctx.send_followup(f"{ctx.author.mention} Server is already OFFLINE")
                 discord.ApplicationCommand.reset_cooldown(self.server_stop, ctx)
@@ -113,18 +113,19 @@ class Scommands(commands.Cog):
 
 
     @discord.slash_command(
-        name="server_list_number",
+        name="server_player_count",
         description="Lists the number of players currently on the server",
         guild_ids=ALLOWED_SERVER_IDS
     )
     @commands.cooldown(rate=1, per=10)
-    async def server_list_number(self, ctx: discord.ApplicationContext):
+    async def server_player_count(self, ctx: discord.ApplicationContext):
         await ctx.defer()
+        run_script(SERVER_PLAYER_COUNT_SCRIPT)
         serverInfo = load_server_info()
         await ctx.send_followup(f"Current players online: {serverInfo.get('player_count')}")
 
-    @server_list_number.error
-    async def server_list_number_error(self, ctx, error):
+    @server_player_count.error
+    async def server_player_count_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.respond(f"🛑 **ERROR:** {ctx.author.mention} Command is on cooldown! Try again in {round(error.retry_after)} seconds. 💂‍♂️")
         else:
@@ -133,7 +134,7 @@ class Scommands(commands.Cog):
 
     @discord.slash_command(
         name="server_backup",
-        description="Begins a world backup if the Server is OFF",
+        description="💾 Begins a world backup if the Server is OFF",
         guild_ids=ALLOWED_SERVER_IDS
     )
     @commands.cooldown(rate=1, per=30*60)
