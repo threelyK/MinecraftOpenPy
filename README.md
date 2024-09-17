@@ -7,7 +7,8 @@ This Discord bot allows users to launch a Minecraft server using bash scripts ex
 ## Features
 
 - Command cooldowns to stop spamming
-- Online player checker
+- Ability to authorize certain servers
+- Player counter to see how many are online
 - Simple and easy-to-use Discord slash commands
 
 ## Prerequisites
@@ -16,7 +17,7 @@ This Discord bot allows users to launch a Minecraft server using bash scripts ex
 - Minecraft server files on the remote server
 - Python 3.8+
 - Discord bot token
-- Bash scripts to manage the Minecraft server including a server-start, server-stop, server-backup, and playercounter
+- Bash scripts to manage the Minecraft server including a server-start, server-stop, server-backup, and player-count
 
 ## Installation
 
@@ -55,7 +56,8 @@ This Discord bot allows users to launch a Minecraft server using bash scripts ex
 
 - `/server_start`: Launch the Minecraft server
 - `/server_stop`: Stop the Minecraft server
-- `/server_list`: Outputs the number of players on the Minecraft server
+- `/server_backup`: Backup the world folder
+- `/server_player_count`: Output the number of players on the Minecraft server
 
 ## License
 
